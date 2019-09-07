@@ -7,7 +7,7 @@ The presentation of the project I gave in my VI<sup>th</sup> semester can be fou
 1. Start the simulation for a given mole fraction of CO. The sum of the mole fraction of CO and the mole fraction of H<sub>2</sub> is assumed to be equal to 1.
 1. Generate a random floating point number per iteration of the simulation. If this number is greater than the mole fraction of CO, choose H<sub>2</sub> as the reactant for this iteration, else choose CO.
 1. If the chosen reactant is CO, generate two random integers in the range [0,LATTICE_SIZE], which denote the row and column of a site on the lattice. If this site is empty, a CO molecule adsorbs onto the site. Now, on this site:
-    1.1. Initiate reaction with CO if possible.
+    1. Initiate reaction with CO if possible.
     1. Initiate reaction with CH<sub>x</sub> if possible (0&leq;x&leq;3).
     1. Initiate desorption on CH<sub>x</sub> if possible (1&leq;x&leq;3).
 1. If the chosen reactant is H<sub>2</sub>, generate two random integers in the range [0,LATTICE_SIZE], which denote the row and column of one of the two sites on the lattice, where this H<sub>2</sub> molecule will adsorb as individual H atoms. Generate another random integer in the range [0,2], which denotes the direction of the second site relative to the first site (right, bottom-left or bottom-right). If both these sites are empty, the H<sub>2</sub> molecule dissociates to two H atoms which individually adsorb to these sites.
