@@ -53,4 +53,4 @@ The presentation of the project I gave in my VI<sup>th</sup> semester can be fou
 
 ## Assumptions
 
-- Priority of formation of H<sub>2</sub>O over retaining the preexisting C-H bonds.
+- Priority of formation of H<sub>2</sub>O over retaining the pre-existing C-H bonds.
