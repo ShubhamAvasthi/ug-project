@@ -3,6 +3,11 @@ This is my UG Project on Kinetic Monte Carlo Simulation of the reaction of Synga
 
 The presentation of the project I gave in my VI<sup>th</sup> semester can be found [here](https://drive.google.com/open?id=1jyiGVkmOm2lhAfoux6vd9_GlsXFtRRI0jGSqEkwMUpg).
 
+## Recommended Compilation Command:
+```posh
+g++ -O3 -march=native simulation.cpp -o simulation
+```
+
 ## TODO
 ## The Algorithm (Not Current)
 1. Start with a hexagonal lattice of size LATTICE_SIZE * LATTICE_SIZE for some LATTICE_SIZE.
