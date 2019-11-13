@@ -3,7 +3,8 @@ This is my UG Project on Kinetic Monte Carlo Simulation of the reaction of Synga
 
 The presentation of the project I gave in my VI<sup>th</sup> semester can be found [here](https://drive.google.com/open?id=1jyiGVkmOm2lhAfoux6vd9_GlsXFtRRI0jGSqEkwMUpg).
 
-## The Algorithm (Current)
+## TODO
+## The Algorithm (Not Current)
 1. Start with a hexagonal lattice of size LATTICE_SIZE * LATTICE_SIZE for some LATTICE_SIZE.
 1. Start the simulation for a given mole fraction of CO. The sum of the mole fraction of CO and the mole fraction of H<sub>2</sub> is assumed to be equal to 1.
 1. Generate a random floating point number per iteration of the simulation. If this number is greater than the mole fraction of CO, choose H<sub>2</sub> as the reactant for this iteration, else choose CO.
