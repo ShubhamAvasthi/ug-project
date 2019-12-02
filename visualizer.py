@@ -86,7 +86,7 @@ while True:
         # time.sleep(5000)
     except EOFError:
         plt.show(block=True)
-        fig.savefig("lastrun.png")
+        # fig.savefig("lastrun.png")
         exit()
 
     lattice = list(input().split())
@@ -98,5 +98,5 @@ while True:
         plt.plot(mcs, hydrocarbon_production, 'bo')
         plt.pause(0.00001)
     else:
-        fig.savefig("lastrun.png")
+        # fig.savefig("lastrun.png")
         exit()
