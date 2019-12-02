@@ -7,6 +7,7 @@
 #include <functional>
 #include <iostream>
 #include <limits>
+#include <map>
 #include <queue>
 #include <random>
 #include <set>
@@ -34,7 +35,7 @@ array<array<string, LATTICE_SIZE>, LATTICE_SIZE> lattice;
 array<array<array<pair<int, int>, 6>, LATTICE_SIZE>, LATTICE_SIZE> nearest_neighbours;
 array<array<set<pair<int, int>>, LATTICE_SIZE>, LATTICE_SIZE> bonded_H_atoms;
 array<array<pair<int, int>, LATTICE_SIZE>, LATTICE_SIZE> is_connected_to;
-set<int> hydrocarbon_sizes_seen;
+map<int, int> hydrocarbon_sizes_seen;
 
 // Some useful overloads
 ostream &operator<<(ostream &out, array<array<string, LATTICE_SIZE>, LATTICE_SIZE> &lattice)
@@ -206,9 +207,8 @@ private:
 		if(!search_branched_chains(unsatisfied_valency_sites, vis_nodes))
 			return;
 
-		// Selecting chain 0 (it is still random because of random shuffles in the code finding it)
 		hydrocarbon_production++;
-		hydrocarbon_sizes_seen.insert(vis_nodes.size());
+		hydrocarbon_sizes_seen[vis_nodes.size()]++;
 		for (auto C_site : vis_nodes)
 		{
 			for (auto H_site : bonded_H_atoms[C_site.first][C_site.second])
@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 		else
 			return cerr << "Error: unknown option '" << argv[i] << "' \n", 1;
 
-	ofstream outfile("out.csv");
+	ofstream outfile("out.csv"), hydrocarbon_sizes_outfile("hydrocarbon_sizes_distribution.txt");
 	outfile << "Mole Fraction of CO,Hydrocarbon production,Coverage fraction of CO,Coverage fraction of H,Coverage fraction of C,Coverage fraction of empty sites,Average hydrocarbon production\n";
 
 	if (essential_info_messages)
@@ -443,9 +443,9 @@ int main(int argc, char *argv[])
 			if(essential_info_messages)
 			{
 				cerr<<"Hydrocarbon sizes seen: ";
-					for(int x:hydrocarbon_sizes_seen)
-						cerr<<x<<' ';
-					cerr<<'\n';
+				for(pair<int, int> x:hydrocarbon_sizes_seen)
+					cerr<<x.first<<": "<<x.second<<(x.first == hydrocarbon_sizes_seen.rbegin()->first ? "" : ", ");
+				cerr<<'\n';
 			}
 
 			// if (!equilibrium_approached)
@@ -470,6 +470,10 @@ int main(int argc, char *argv[])
 				f_C /= LATTICE_POINTS;
 				f_E /= LATTICE_POINTS;
 				outfile << f_CO << ',' << f_H << ',' << f_C << ',' << f_E << ',' << double(latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front()) / EQUILIBRIUM_VERIFICATION_STEPS << ",\n";
+
+				hydrocarbon_sizes_outfile << f_CO << ' ' << hydrocarbon_sizes_seen.size() << '\n';
+				for(auto x : hydrocarbon_sizes_seen)
+					hydrocarbon_sizes_outfile << x.first << ' ' << x.second << '\n';
 			// }
 		}
 	}
