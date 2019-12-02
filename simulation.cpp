@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
 
 				hydrocarbon_sizes_outfile << f_CO << ' ' << hydrocarbon_sizes_seen.size() << '\n';
 				for(auto x : hydrocarbon_sizes_seen)
-					hydrocarbon_sizes_outfile << x.first << ' ' << x.second << '\n';
+					hydrocarbon_sizes_outfile << x.first << ' ' << double(x.second) / n_trials << '\n';
 			// }
 		}
 	}
