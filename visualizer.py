@@ -17,7 +17,7 @@ colormap = {
     'C'    : 'black',
     'CH'   : 'cyan',
     'CH2'  : 'blue',
-    'CH3'  : 'darkblue'
+    'CH3'  : 'green'
 }
 
 plt.ion()
