@@ -36,6 +36,7 @@ array<array<array<pair<int, int>, 6>, LATTICE_SIZE>, LATTICE_SIZE> nearest_neigh
 array<array<set<pair<int, int>>, LATTICE_SIZE>, LATTICE_SIZE> bonded_H_atoms;
 array<array<pair<int, int>, LATTICE_SIZE>, LATTICE_SIZE> is_connected_to;
 map<int, int> hydrocarbon_sizes_seen;
+vector<string> product_smiles;
 
 // Some useful overloads
 ostream &operator<<(ostream &out, array<array<string, LATTICE_SIZE>, LATTICE_SIZE> &lattice)
@@ -151,7 +152,7 @@ private:
 
 	// Search branched chains
 	// Each element of unsatisfied_valency_sites is a pair of a site and number of its unsatisfied valencies
-	static bool search_branched_chains(stack<pair<pair<int, int>, int>> &unsatisfied_valency_sites, set<pair<int, int>> &vis)
+	static bool search_branched_chains(stack<pair<pair<int, int>, int>> &unsatisfied_valency_sites, set<pair<int, int>> &vis, string &smile)
 	{
 		if(unsatisfied_valency_sites.empty())
 			return true;
@@ -163,9 +164,11 @@ private:
 		if(num_unsatisfied_valency == 0)
 		{
 			unsatisfied_valency_sites.pop();
-			if(search_branched_chains(unsatisfied_valency_sites, vis))
+			smile += ")";
+			if(search_branched_chains(unsatisfied_valency_sites, vis, smile))
 				return true;
 			unsatisfied_valency_sites.push(stack_top);
+			smile.pop_back();
 		}
 		else
 		{
@@ -183,11 +186,19 @@ private:
 					unsatisfied_valency_sites.top().second -= outgoing_valency;
 					unsatisfied_valency_sites.push(make_pair(neighbour_site, 4 - bonded_H_atoms[neighbour_site.first][neighbour_site.second].size() - outgoing_valency));
 					vis.insert(neighbour_site);
-					if(search_branched_chains(unsatisfied_valency_sites, vis))
+					smile += "(";
+					if(outgoing_valency == 2)
+						smile += "=";
+					else if(outgoing_valency == 3)
+						smile += "#";
+					smile += "C";
+					if(search_branched_chains(unsatisfied_valency_sites, vis, smile))
 						return true;
 					unsatisfied_valency_sites.pop();
 					unsatisfied_valency_sites.top().second += outgoing_valency;
 					vis.erase(neighbour_site);
+					for(int i = 0; i < 2 + (outgoing_valency == 2 || outgoing_valency == 3); i++)
+						smile.pop_back();
 				}
 			}
 		}
@@ -203,12 +214,14 @@ private:
 
 		set<pair<int, int>> vis_nodes{site};
 		stack<pair<pair<int, int>, int>> unsatisfied_valency_sites({make_pair(site, 4 - bonded_H_atoms[site.first][site.second].size())});
+		string smile("(C");
 		
-		if(!search_branched_chains(unsatisfied_valency_sites, vis_nodes))
+		if(!search_branched_chains(unsatisfied_valency_sites, vis_nodes, smile))
 			return;
 
 		hydrocarbon_production++;
 		hydrocarbon_sizes_seen[vis_nodes.size()]++;
+		product_smiles.push_back(smile);
 		for (auto C_site : vis_nodes)
 		{
 			for (auto H_site : bonded_H_atoms[C_site.first][C_site.second])
@@ -246,7 +259,7 @@ int main(int argc, char *argv[])
 		else
 			return cerr << "Error: unknown option '" << argv[i] << "' \n", 1;
 
-	ofstream outfile("out.csv"), hydrocarbon_sizes_outfile("hydrocarbon_sizes_distribution.txt");
+	ofstream outfile("out.csv"), hydrocarbon_sizes_outfile("hydrocarbon_sizes_distribution.txt"), product_smiles_outfile("product_smiles.txt");
 	outfile << "Mole Fraction of CO,Hydrocarbon production,Coverage fraction of CO,Coverage fraction of H,Coverage fraction of C,Coverage fraction of empty sites,Average hydrocarbon production\n";
 
 	if (essential_info_messages)
@@ -324,6 +337,7 @@ int main(int argc, char *argv[])
 
 		hydrocarbon_production = 0;
 		hydrocarbon_sizes_seen.clear();
+		product_smiles.clear();
 
 		// Main Loop
 
@@ -474,6 +488,10 @@ int main(int argc, char *argv[])
 				hydrocarbon_sizes_outfile << f_CO << ' ' << hydrocarbon_sizes_seen.size() << '\n';
 				for(auto x : hydrocarbon_sizes_seen)
 					hydrocarbon_sizes_outfile << x.first << ' ' << double(x.second) / n_trials << '\n';
+
+				product_smiles_outfile << f_CO << ' ' << product_smiles.size() << '\n';
+				for(string smile : product_smiles)
+					product_smiles_outfile << smile << '\n';
 			// }
 		}
 	}
