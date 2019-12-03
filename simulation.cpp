@@ -260,9 +260,10 @@ int main(int argc, char *argv[])
 			return cerr << "Error: unknown option '" << argv[i] << "' \n", 1;
 
 	ofstream hydrocarbon_production_outfile("hydrocarbon_production.csv"), hydrocarbon_sizes_outfile("hydrocarbon_sizes_distribution.txt"), product_smiles_outfile("product_smiles.txt");
+	hydrocarbon_production_outfile << fixed;
+	hydrocarbon_sizes_outfile << fixed;
 	hydrocarbon_production_outfile.precision(FLOAT_OUTPUT_PRECISION);
 	hydrocarbon_sizes_outfile.precision(FLOAT_OUTPUT_PRECISION);
-	product_smiles_outfile.precision(FLOAT_OUTPUT_PRECISION);
 
 	hydrocarbon_production_outfile << "Mole Fraction of CO,Hydrocarbon production,Coverage fraction of CO,Coverage fraction of H,Coverage fraction of C,Coverage fraction of empty sites,Average hydrocarbon production\n";
 
