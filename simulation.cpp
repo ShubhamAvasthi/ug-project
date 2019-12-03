@@ -24,7 +24,7 @@ const float MF_STEP = 0.01; //0.05
 // Equilibrium will be assumed to have arrived, when the difference between the average of the hydrocarbon production in the last EQUILIBRIUM_VERIFICATION_STEPS and
 // the average of the latest and the oldest steps among the last EQUILIBRIUM_VERIFICATION_STEPS is less than EQUILIBRIUM_VERIFICATION_THRESHOLD
 const int EQUILIBRIUM_VERIFICATION_STEPS = 100 * LATTICE_POINTS;
-const int EQUILIBRIUM_VERIFICATION_THRESHOLD = 10;
+const int EQUILIBRIUM_VERIFICATION_THRESHOLD = -1; //Completely removing early equilibrium criteria
 const int MAX_ITERATIONS_PER_SIMULATION = 5000 * LATTICE_POINTS;
 
 bool visualize = true, info_messages = true, essential_info_messages = true;
