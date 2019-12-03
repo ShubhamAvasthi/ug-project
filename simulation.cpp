@@ -14,7 +14,7 @@
 #include <stack>
 using namespace std;
 
-const int FLOAT_OUTPUT_PRECISION = 5;
+const int FLOAT_OUTPUT_PRECISION = 7;
 const int LATTICE_SIZE = 100;                           // Has to be an even integer
 const long long LATTICE_POINTS = LATTICE_SIZE * LATTICE_SIZE; // Just for readability
 const long long PRINT_STEP = 50 * LATTICE_POINTS;
@@ -259,8 +259,12 @@ int main(int argc, char *argv[])
 		else
 			return cerr << "Error: unknown option '" << argv[i] << "' \n", 1;
 
-	ofstream outfile("out.csv"), hydrocarbon_sizes_outfile("hydrocarbon_sizes_distribution.txt"), product_smiles_outfile("product_smiles.txt");
-	outfile << "Mole Fraction of CO,Hydrocarbon production,Coverage fraction of CO,Coverage fraction of H,Coverage fraction of C,Coverage fraction of empty sites,Average hydrocarbon production\n";
+	ofstream hydrocarbon_production_outfile("hydrocarbon_production.csv"), hydrocarbon_sizes_outfile("hydrocarbon_sizes_distribution.txt"), product_smiles_outfile("product_smiles.txt");
+	hydrocarbon_production_outfile.precision(FLOAT_OUTPUT_PRECISION);
+	hydrocarbon_sizes_outfile.precision(FLOAT_OUTPUT_PRECISION);
+	product_smiles_outfile.precision(FLOAT_OUTPUT_PRECISION);
+
+	hydrocarbon_production_outfile << "Mole Fraction of CO,Hydrocarbon production,Coverage fraction of CO,Coverage fraction of H,Coverage fraction of C,Coverage fraction of empty sites,Average hydrocarbon production\n";
 
 	if (essential_info_messages)
 	{
@@ -467,7 +471,7 @@ int main(int argc, char *argv[])
 
 			// if (equilibrium_approached)
 			// {
-				outfile << mole_fraction_of_CO << ',' << latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front() << ',';// hydrocarbon_production - base_HC_production << ',';
+				hydrocarbon_production_outfile << mole_fraction_of_CO << ',' << latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front() << ',';// hydrocarbon_production - base_HC_production << ',';
 				float f_CO = 0, f_H = 0, f_C = 0, f_E = 0;
 				for (auto &x : lattice)
 					for (auto &y : x)
@@ -483,7 +487,7 @@ int main(int argc, char *argv[])
 				f_H /= LATTICE_POINTS;
 				f_C /= LATTICE_POINTS;
 				f_E /= LATTICE_POINTS;
-				outfile << f_CO << ',' << f_H << ',' << f_C << ',' << f_E << ',' << double(latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front()) / EQUILIBRIUM_VERIFICATION_STEPS << ",\n";
+				hydrocarbon_production_outfile << f_CO << ',' << f_H << ',' << f_C << ',' << f_E << ',' << double(latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front()) / EQUILIBRIUM_VERIFICATION_STEPS << ",\n";
 
 				hydrocarbon_sizes_outfile << f_CO << ' ' << hydrocarbon_sizes_seen.size() << '\n';
 				for(auto x : hydrocarbon_sizes_seen)
