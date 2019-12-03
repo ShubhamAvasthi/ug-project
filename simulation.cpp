@@ -22,11 +22,10 @@ const long long VISUALIZE_STEP = 10 * LATTICE_POINTS;
 const float MF_STEP = 0.01; //0.05
 
 // Equilibrium will be assumed to have arrived, when the difference between the average of the hydrocarbon production in the last EQUILIBRIUM_VERIFICATION_STEPS and
-// the average of the latest and the oldest steps among the last tEQUILIBRIUM_VERIFICATION_STEPS is less than EQUILIBRIUM_VERIFICATION_THRESHOLD
-const int EQUILIBRIUM_VERIFICATION_STEPS = 400000;
+// the average of the latest and the oldest steps among the last EQUILIBRIUM_VERIFICATION_STEPS is less than EQUILIBRIUM_VERIFICATION_THRESHOLD
+const int EQUILIBRIUM_VERIFICATION_STEPS = 50 * LATTICE_POINTS;
 const int EQUILIBRIUM_VERIFICATION_THRESHOLD = 0;
-// const int STEPS_BEFORE_EQUILIBRIUM = 100/*000*/ * LATTICE_POINTS;
-// const int STEPS_AFTER_EQUILIBRIUM = 100/*000*/ * LATTICE_POINTS;
+const int MAX_ITERATIONS_PER_SIMULATION = 5000 * LATTICE_POINTS;
 
 bool visualize = true, info_messages = true, essential_info_messages = true;
 default_random_engine generator;
@@ -348,159 +347,146 @@ int main(int argc, char *argv[])
 
 		// Main Loop
 
-		// for (int equilibrium_approached = 0; equilibrium_approached < 2; equilibrium_approached++)
+		while (n_trials < EQUILIBRIUM_VERIFICATION_STEPS
+				&& !(latest_hydrocarbon_productions.size()==EQUILIBRIUM_VERIFICATION_STEPS && abs(latest_hydrocarbon_productions_sum - (latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) * EQUILIBRIUM_VERIFICATION_STEPS / 2) <= EQUILIBRIUM_VERIFICATION_THRESHOLD))
 		{
-			// int iter_steps = (equilibrium_approached ? STEPS_AFTER_EQUILIBRIUM : STEPS_BEFORE_EQUILIBRIUM);
+			// Sleep(10);
+			n_trials++;
+			Reactant reactant = static_cast<Reactant>(reactant_distribution(generator) > mole_fraction_of_CO);
 
-			// When the iteration with iter_num = 0 ends, equilibrium is supposed to be achieved
-			// All required values are calculated in the iteration when iter_num = 1
-			// for (int iter_num = 0; iter_num < iter_steps; iter_num++)
-			while(!(latest_hydrocarbon_productions.size()==EQUILIBRIUM_VERIFICATION_STEPS && abs(latest_hydrocarbon_productions_sum - (latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) * EQUILIBRIUM_VERIFICATION_STEPS / 2) <= EQUILIBRIUM_VERIFICATION_THRESHOLD))
+			if (reactant == Reactant::CO)
 			{
-				// Sleep(10);
-				n_trials++;
-				Reactant reactant = static_cast<Reactant>(reactant_distribution(generator) > mole_fraction_of_CO);
+				// Choose a site randomly
+				int site_row = index_distribution(generator), site_col = index_distribution(generator);
 
-				if (reactant == Reactant::CO)
+				// Proceed if the site is empty
+				if (lattice[site_row][site_col] == "empty")
 				{
-					// Choose a site randomly
-					int site_row = index_distribution(generator), site_col = index_distribution(generator);
-
-					// Proceed if the site is empty
-					if (lattice[site_row][site_col] == "empty")
-					{
-						n_succesful_trials++;
-						lattice[site_row][site_col] = "CO";
-						LatticeOperations::process_site(make_pair(site_row, site_col));
-					}
-					// else
-					// {
-					//     iter_num--;
-					//     continue;
-					// }
+					n_succesful_trials++;
+					lattice[site_row][site_col] = "CO";
+					LatticeOperations::process_site(make_pair(site_row, site_col));
 				}
-				else
+				// else
+				// {
+				//     iter_num--;
+				//     continue;
+				// }
+			}
+			else
+			{
+				array<pair<int, int>, 2> sites;
+
+				// Choose first site randomly
+				sites[0] = make_pair(index_distribution(generator), index_distribution(generator));
+				// Choose direction of the second site
+				Direction direction = static_cast<Direction>(pair_direction_distribution(generator));
+
+				// Choose second site based on the random variable direction
+				if (direction == Direction::right)
+					sites[1] = make_pair(sites[0].first, (sites[0].second + 1) % LATTICE_SIZE);
+				else if (direction == Direction::bottom_right)
+					sites[1] = make_pair((sites[0].first + 1) % LATTICE_SIZE, (sites[0].second + (sites[0].first & 1)) % LATTICE_SIZE);
+				else if (direction == Direction::bottom_left)
+					sites[1] = make_pair((sites[0].first + 1) % LATTICE_SIZE, (sites[0].second + (sites[0].first & 1) - 1 + LATTICE_SIZE) % LATTICE_SIZE);
+
+				bool ok = true;
+				for (auto x : sites)
+					if (lattice[x.first][x.second] != "empty")
+					{
+						ok = false;
+						break;
+					}
+
+				// Proceed if both the sites are empty
+				if (ok)
 				{
-					array<pair<int, int>, 2> sites;
-
-					// Choose first site randomly
-					sites[0] = make_pair(index_distribution(generator), index_distribution(generator));
-					// Choose direction of the second site
-					Direction direction = static_cast<Direction>(pair_direction_distribution(generator));
-
-					// Choose second site based on the random variable direction
-					if (direction == Direction::right)
-						sites[1] = make_pair(sites[0].first, (sites[0].second + 1) % LATTICE_SIZE);
-					else if (direction == Direction::bottom_right)
-						sites[1] = make_pair((sites[0].first + 1) % LATTICE_SIZE, (sites[0].second + (sites[0].first & 1)) % LATTICE_SIZE);
-					else if (direction == Direction::bottom_left)
-						sites[1] = make_pair((sites[0].first + 1) % LATTICE_SIZE, (sites[0].second + (sites[0].first & 1) - 1 + LATTICE_SIZE) % LATTICE_SIZE);
-
-					bool ok = true;
+					n_succesful_trials++;
 					for (auto x : sites)
-						if (lattice[x.first][x.second] != "empty")
-						{
-							ok = false;
-							break;
-						}
-
-					// Proceed if both the sites are empty
-					if (ok)
-					{
-						n_succesful_trials++;
-						for (auto x : sites)
-							lattice[x.first][x.second] = "H";
-						set<pair<int, int>> sites_set;
-						sites_set.insert(nearest_neighbours[sites[0].first][sites[0].second].begin(), nearest_neighbours[sites[0].first][sites[0].second].end());
-						sites_set.insert(nearest_neighbours[sites[1].first][sites[1].second].begin(), nearest_neighbours[sites[1].first][sites[1].second].end());
-						sites_set.erase(sites[0]);
-						sites_set.erase(sites[1]);
-						vector<pair<int, int>> nearest_sites(sites_set.begin(), sites_set.end());
-						shuffle(nearest_sites.begin(), nearest_sites.end(), generator);
-						for (pair<int, int> nearest_site : nearest_sites)
-							LatticeOperations::process_site(nearest_site);
-					}
-					// else
-					// {
-					//     iter_num--;
-					//     continue;
-					// }
+						lattice[x.first][x.second] = "H";
+					set<pair<int, int>> sites_set;
+					sites_set.insert(nearest_neighbours[sites[0].first][sites[0].second].begin(), nearest_neighbours[sites[0].first][sites[0].second].end());
+					sites_set.insert(nearest_neighbours[sites[1].first][sites[1].second].begin(), nearest_neighbours[sites[1].first][sites[1].second].end());
+					sites_set.erase(sites[0]);
+					sites_set.erase(sites[1]);
+					vector<pair<int, int>> nearest_sites(sites_set.begin(), sites_set.end());
+					shuffle(nearest_sites.begin(), nearest_sites.end(), generator);
+					for (pair<int, int> nearest_site : nearest_sites)
+						LatticeOperations::process_site(nearest_site);
 				}
-
-				if(latest_hydrocarbon_productions.size()==EQUILIBRIUM_VERIFICATION_STEPS)
-				{
-					latest_hydrocarbon_productions_sum -= latest_hydrocarbon_productions.front();
-					latest_hydrocarbon_productions.pop_front();
-				}
-				latest_hydrocarbon_productions_sum += hydrocarbon_production;
-				latest_hydrocarbon_productions.push_back(hydrocarbon_production);
-
-				// latest_hydrocarbon_productions_average = double(latest_hydrocarbon_productions_sum) / EQUILIBRIUM_VERIFICATION_STEPS;
-				// extremes_average = (latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) / 2;
-
-				// cerr<<latest_hydrocarbon_productions_average<<' '<<extremes_average<<' '<<latest_hydrocarbon_productions.size()<<' '<<EQUILIBRIUM_VERIFICATION_THRESHOLD<<' '<<abs(latest_hydrocarbon_productions_average - extremes_average)<<'\n';
-
-				if (info_messages && n_trials % PRINT_STEP == 0)
-				{
-					cerr << "MCS: " << n_trials / LATTICE_POINTS
-						 << ", Trials: " << n_trials
-						 << ", Successful Trials: " << n_succesful_trials
-						 << ", Unsuccessful Trials: " << n_trials - n_succesful_trials;
-						//  << '\n';
-					cerr<<' '<<latest_hydrocarbon_productions.size()<<' '<<EQUILIBRIUM_VERIFICATION_THRESHOLD<<' '<<latest_hydrocarbon_productions_sum<<' '<<latest_hydrocarbon_productions.front()<<' '<<latest_hydrocarbon_productions.back()<<' '<<(latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) * EQUILIBRIUM_VERIFICATION_STEPS / 2<<' '<<abs(latest_hydrocarbon_productions_sum - (latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) * EQUILIBRIUM_VERIFICATION_STEPS / 2)<<'\n';
-				}
-
-				if (visualize && n_trials % VISUALIZE_STEP == 0)
-				{
-					// Visualize current state
-					cout << mole_fraction_of_CO<< '\n'
-						 << double(n_trials) / LATTICE_POINTS << '\n'
-						 << lattice << '\n'
-						 << hydrocarbon_production << '\n';
-				}
-
+				// else
+				// {
+				//     iter_num--;
+				//     continue;
+				// }
 			}
 
-			if(essential_info_messages)
+			if(latest_hydrocarbon_productions.size()==EQUILIBRIUM_VERIFICATION_STEPS)
 			{
-				cerr<<"Hydrocarbon sizes seen: ";
-				for(pair<int, int> x:hydrocarbon_sizes_seen)
-					cerr<<x.first<<": "<<x.second<<(x.first == hydrocarbon_sizes_seen.rbegin()->first ? "" : ", ");
-				cerr<<'\n';
+				latest_hydrocarbon_productions_sum -= latest_hydrocarbon_productions.front();
+				latest_hydrocarbon_productions.pop_front();
+			}
+			latest_hydrocarbon_productions_sum += hydrocarbon_production;
+			latest_hydrocarbon_productions.push_back(hydrocarbon_production);
+
+			// latest_hydrocarbon_productions_average = double(latest_hydrocarbon_productions_sum) / EQUILIBRIUM_VERIFICATION_STEPS;
+			// extremes_average = (latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) / 2;
+
+			// cerr<<latest_hydrocarbon_productions_average<<' '<<extremes_average<<' '<<latest_hydrocarbon_productions.size()<<' '<<EQUILIBRIUM_VERIFICATION_THRESHOLD<<' '<<abs(latest_hydrocarbon_productions_average - extremes_average)<<'\n';
+
+			if (info_messages && n_trials % PRINT_STEP == 0)
+			{
+				cerr << "MCS: " << n_trials / LATTICE_POINTS
+						<< ", Trials: " << n_trials
+						<< ", Successful Trials: " << n_succesful_trials
+						<< ", Unsuccessful Trials: " << n_trials - n_succesful_trials;
+					//  << '\n';
+				cerr<<' '<<latest_hydrocarbon_productions.size()<<' '<<EQUILIBRIUM_VERIFICATION_THRESHOLD<<' '<<latest_hydrocarbon_productions_sum<<' '<<latest_hydrocarbon_productions.front()<<' '<<latest_hydrocarbon_productions.back()<<' '<<(latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) * EQUILIBRIUM_VERIFICATION_STEPS / 2<<' '<<abs(latest_hydrocarbon_productions_sum - (latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) * EQUILIBRIUM_VERIFICATION_STEPS / 2)<<'\n';
 			}
 
-			// if (!equilibrium_approached)
-			//     base_HC_production = hydrocarbon_production;
+			if (visualize && n_trials % VISUALIZE_STEP == 0)
+			{
+				// Visualize current state
+				cout << mole_fraction_of_CO<< '\n'
+						<< double(n_trials) / LATTICE_POINTS << '\n'
+						<< lattice << '\n'
+						<< hydrocarbon_production << '\n';
+			}
 
-			// if (equilibrium_approached)
-			// {
-				hydrocarbon_production_outfile << mole_fraction_of_CO << ',' << latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front() << ',';// hydrocarbon_production - base_HC_production << ',';
-				float f_CO = 0, f_H = 0, f_C = 0, f_E = 0;
-				for (auto &x : lattice)
-					for (auto &y : x)
-						if (y == "CO")
-							f_CO++;
-						else if (y == "H")
-							f_H++;
-						else if (y == "C")
-							f_C++;
-						else if (y == "empty")
-							f_E++;
-				f_CO /= LATTICE_POINTS;
-				f_H /= LATTICE_POINTS;
-				f_C /= LATTICE_POINTS;
-				f_E /= LATTICE_POINTS;
-				hydrocarbon_production_outfile << f_CO << ',' << f_H << ',' << f_C << ',' << f_E << ',' << double(latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front()) / EQUILIBRIUM_VERIFICATION_STEPS << ",\n";
-
-				hydrocarbon_sizes_outfile << mole_fraction_of_CO << ' ' << hydrocarbon_sizes_seen.size() << '\n';
-				for(auto x : hydrocarbon_sizes_seen)
-					hydrocarbon_sizes_outfile << x.first << ' ' << double(x.second) / n_trials << '\n';
-
-				product_smiles_outfile << mole_fraction_of_CO << ' ' << product_smiles.size() << '\n';
-				for(string smile : product_smiles)
-					product_smiles_outfile << smile << '\n';
-			// }
 		}
+
+		if(essential_info_messages)
+		{
+			cerr<<"Hydrocarbon sizes seen: ";
+			for(pair<int, int> x:hydrocarbon_sizes_seen)
+				cerr<<x.first<<": "<<x.second<<(x.first == hydrocarbon_sizes_seen.rbegin()->first ? "" : ", ");
+			cerr<<'\n';
+		}
+
+		hydrocarbon_production_outfile << mole_fraction_of_CO << ',' << latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front() << ',';
+		float f_CO = 0, f_H = 0, f_C = 0, f_E = 0;
+		for (auto &x : lattice)
+			for (auto &y : x)
+				if (y == "CO")
+					f_CO++;
+				else if (y == "H")
+					f_H++;
+				else if (y == "C")
+					f_C++;
+				else if (y == "empty")
+					f_E++;
+		f_CO /= LATTICE_POINTS;
+		f_H /= LATTICE_POINTS;
+		f_C /= LATTICE_POINTS;
+		f_E /= LATTICE_POINTS;
+		hydrocarbon_production_outfile << f_CO << ',' << f_H << ',' << f_C << ',' << f_E << ',' << double(latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front()) / EQUILIBRIUM_VERIFICATION_STEPS << ",\n";
+
+		hydrocarbon_sizes_outfile << mole_fraction_of_CO << ' ' << hydrocarbon_sizes_seen.size() << '\n';
+		for(auto x : hydrocarbon_sizes_seen)
+			hydrocarbon_sizes_outfile << x.first << ' ' << double(x.second) / n_trials << '\n';
+
+		product_smiles_outfile << mole_fraction_of_CO << ' ' << product_smiles.size() << '\n';
+		for(string smile : product_smiles)
+			product_smiles_outfile << smile << '\n';
 	}
 	auto end_time = chrono::high_resolution_clock::now();
 	chrono::high_resolution_clock::duration time_duration = end_time - start_time;
