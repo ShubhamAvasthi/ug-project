@@ -23,7 +23,7 @@ const float MF_STEP = 0.01; //0.05
 
 // Equilibrium will be assumed to have arrived, when the difference between the average of the hydrocarbon production in the last EQUILIBRIUM_VERIFICATION_STEPS and
 // the average of the latest and the oldest steps among the last EQUILIBRIUM_VERIFICATION_STEPS is less than EQUILIBRIUM_VERIFICATION_THRESHOLD
-const int EQUILIBRIUM_VERIFICATION_STEPS = 50 * LATTICE_POINTS;
+const int EQUILIBRIUM_VERIFICATION_STEPS = 100 * LATTICE_POINTS;
 const int EQUILIBRIUM_VERIFICATION_THRESHOLD = 0;
 const int MAX_ITERATIONS_PER_SIMULATION = 5000 * LATTICE_POINTS;
 
@@ -347,7 +347,7 @@ int main(int argc, char *argv[])
 
 		// Main Loop
 
-		while (n_trials < EQUILIBRIUM_VERIFICATION_STEPS
+		while (n_trials < MAX_ITERATIONS_PER_SIMULATION
 				&& !(latest_hydrocarbon_productions.size()==EQUILIBRIUM_VERIFICATION_STEPS && abs(latest_hydrocarbon_productions_sum - (latest_hydrocarbon_productions.front() + latest_hydrocarbon_productions.back()) * EQUILIBRIUM_VERIFICATION_STEPS / 2) <= EQUILIBRIUM_VERIFICATION_THRESHOLD))
 		{
 			// Sleep(10);
