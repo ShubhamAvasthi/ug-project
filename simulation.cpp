@@ -214,10 +214,12 @@ private:
 
 		set<pair<int, int>> vis_nodes{site};
 		stack<pair<pair<int, int>, int>> unsatisfied_valency_sites({make_pair(site, 4 - bonded_H_atoms[site.first][site.second].size())});
-		string smile("(C");
+		string smile("C");
 		
 		if(!search_branched_chains(unsatisfied_valency_sites, vis_nodes, smile))
 			return;
+
+		smile.pop_back();
 
 		hydrocarbon_production++;
 		hydrocarbon_sizes_seen[vis_nodes.size()]++;
@@ -490,11 +492,11 @@ int main(int argc, char *argv[])
 				f_E /= LATTICE_POINTS;
 				hydrocarbon_production_outfile << f_CO << ',' << f_H << ',' << f_C << ',' << f_E << ',' << double(latest_hydrocarbon_productions.back() - latest_hydrocarbon_productions.front()) / EQUILIBRIUM_VERIFICATION_STEPS << ",\n";
 
-				hydrocarbon_sizes_outfile << f_CO << ' ' << hydrocarbon_sizes_seen.size() << '\n';
+				hydrocarbon_sizes_outfile << mole_fraction_of_CO << ' ' << hydrocarbon_sizes_seen.size() << '\n';
 				for(auto x : hydrocarbon_sizes_seen)
 					hydrocarbon_sizes_outfile << x.first << ' ' << double(x.second) / n_trials << '\n';
 
-				product_smiles_outfile << f_CO << ' ' << product_smiles.size() << '\n';
+				product_smiles_outfile << mole_fraction_of_CO << ' ' << product_smiles.size() << '\n';
 				for(string smile : product_smiles)
 					product_smiles_outfile << smile << '\n';
 			// }
