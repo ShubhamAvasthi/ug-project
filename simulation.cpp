@@ -456,7 +456,7 @@ int main(int argc, char *argv[])
 
 		if(essential_info_messages)
 		{
-			cerr << "Ran for " << double(n_trials) / LATTICE_POINTS << "Monte Carlo Steps\n";
+			cerr << "Ran for " << n_trials / LATTICE_POINTS << '.' << n_trials % LATTICE_POINTS << " Monte Carlo Steps\n";
 			cerr<<"Hydrocarbon sizes seen: ";
 			for(pair<int, int> x:hydrocarbon_sizes_seen)
 				cerr<<x.first<<": "<<x.second<<(x.first == hydrocarbon_sizes_seen.rbegin()->first ? "" : ", ");
