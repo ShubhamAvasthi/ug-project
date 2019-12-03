@@ -19,7 +19,7 @@ const int LATTICE_SIZE = 100;                           // Has to be an even int
 const long long LATTICE_POINTS = LATTICE_SIZE * LATTICE_SIZE; // Just for readability
 const long long PRINT_STEP = 50 * LATTICE_POINTS;
 const long long VISUALIZE_STEP = 10 * LATTICE_POINTS;
-const float MF_STEP = 0.05; //0.05
+const float MF_STEP = 0.01; //0.05
 
 // Equilibrium will be assumed to have arrived, when the difference between the average of the hydrocarbon production in the last EQUILIBRIUM_VERIFICATION_STEPS and
 // the average of the latest and the oldest steps among the last tEQUILIBRIUM_VERIFICATION_STEPS is less than EQUILIBRIUM_VERIFICATION_THRESHOLD
