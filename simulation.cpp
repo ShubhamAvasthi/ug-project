@@ -177,7 +177,11 @@ private:
 			{
 				if(vis.count(neighbour_site) || lattice[neighbour_site.first][neighbour_site.second] != "C")
 					continue;
+				vector<int> possible_outgoing_valencies;
 				for(int outgoing_valency = 1; outgoing_valency != 4 && outgoing_valency <= min(num_unsatisfied_valency, 4 - (int) bonded_H_atoms[neighbour_site.first][neighbour_site.second].size()); outgoing_valency++)
+					possible_outgoing_valencies.push_back(outgoing_valency);
+				shuffle(possible_outgoing_valencies.begin(), possible_outgoing_valencies.end(), generator);
+				for(int outgoing_valency : possible_outgoing_valencies)
 				{
 					// Remove it
 					// if(outgoing_valency != num_unsatisfied_valency)
@@ -456,7 +460,7 @@ int main(int argc, char *argv[])
 
 		if(essential_info_messages)
 		{
-			cerr << "Ran for " << n_trials / LATTICE_POINTS  << " Monte Carlo Steps and " << n_trials % LATTICE_POINTS << "iterations\n";
+			cerr << "Ran for " << n_trials / LATTICE_POINTS  << " Monte Carlo Steps and " << n_trials % LATTICE_POINTS << " iterations\n";
 			cerr<<"Hydrocarbon sizes seen: ";
 			for(pair<int, int> x:hydrocarbon_sizes_seen)
 				cerr<<x.first<<": "<<x.second<<(x.first == hydrocarbon_sizes_seen.rbegin()->first ? "" : ", ");
