@@ -38,7 +38,7 @@ g++ -O3 -march=native simulation.cpp -o simulation
 
 Throughout the program, three queues are maintained. The purpose of the queues is listed below:
 1. **First queue:** This queue consists of the sites, which are to be checked for the reaction of CO and 2H.
-1. **Second queue:** This queue consists of the sites, which are to be checked for the reaction of a CH<sub>x</sub> unit with 2H.
+1. **Second queue:** This queue consists of the sites, which are to be checked for the reaction of a CH<sub>x</sub> unit with at least one H.
 1. **Third queue:** This queue consists of the sites, which are to be checked for the adsorption of a possible product.
 
 
