@@ -3,6 +3,16 @@ This is my UG Project on Kinetic Monte Carlo Simulation of the reaction of Synga
 
 The presentations of the project I gave in my VI<sup>th</sup> and VII<sup>th</sup> semesters can be found [here](https://drive.google.com/open?id=187FT8hZuwe3KrRsSElPZhlCjB6SiKi99).
 
+## Code Files:
+- **simulation.cpp:** The main program that performs all simulations, written in C++.
+- **visualizer.py:** A python script to visualize the lattice with the adsorbed species and hydrocarbon production in real time while the simulation is happening. 
+- **visualize_results.ipynb:** A Jupyter notebook to visualize the production, distribution and structures of the hydrocarbon molecules formed across all simulations.
+
+## Output Files:
+- **hydrocarbon_productions.csv** : Contains the average hydrocarbon productions and coverage fractions of C, H, CO and vacant sites across all simulations.
+- **hydrocarbon_sizes_distribution.txt** : Contains the size distribution of product hydrocarbon chains across all simulations. 
+- **product_smiles.txt** : Contains the structures of the molecules formed across all simulations as Simplified Molecular Input Line Entry System (SMILES) strings.
+
 ## Recommended Compilation Command:
 ```posh
 g++ -O3 -march=native simulation.cpp -o simulation
