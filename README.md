@@ -51,7 +51,7 @@ Throughout the program, three queues are maintained. The purpose of the queues i
 ### Process all queues
 1. Initiate reaction with CO if possible for a site in the first queue. If not possible, proceed to the next step else push the site for which it was possible to the next queue and process all queues.
 1. Initiate reaction with CH<sub>x</sub> if possible (0&leq;x&leq;3) for a site in the second queue. If not possible, proceed to the next step else push the site for which it was possible to the next queue and process all queues.
-1. Initiate desorption on CH<sub>x</sub> if possible (1&leq;x&leq;3) for a site in the first queue. If not possible, return else process all queues.
+1. Initiate desorption on CH<sub>x</sub> if possible (0&leq;x&leq;4) for a site in the first queue. If not possible, return else process all queues.
 
 ### Initiate reaction with CO if possible
 1. For a given site, if this site is not occupied by a CO molecule, return.
