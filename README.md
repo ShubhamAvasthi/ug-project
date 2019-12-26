@@ -8,22 +8,13 @@ The presentations of the project I gave in my VI<sup>th</sup> and VII<sup>th</su
 g++ -O3 -march=native simulation.cpp -o simulation
 ```
 
-## TODO
-## The Algorithm (Not Current)
-1. Start with a hexagonal lattice of size LATTICE_SIZE * LATTICE_SIZE for some LATTICE_SIZE.
-1. Start the simulation for a given mole fraction of CO. The sum of the mole fraction of CO and the mole fraction of H<sub>2</sub> is assumed to be equal to 1.
+## The Algorithm (Current)
+1. Start with a hexagonal lattice of size LATTICE_SIZE * LATTICE_SIZE for some constant LATTICE_SIZE.
+1. Start the simulation for a given mole fraction of CO. The sum of the mole fraction of CO and the mole fraction of H<sub>2</sub> is assumed to be equal to 1 throughout the execution of the program.
 1. Generate a random floating point number per iteration of the simulation. If this number is greater than the mole fraction of CO, choose H<sub>2</sub> as the reactant for this iteration, else choose CO.
-1. If the chosen reactant is CO, generate two random integers in the range [0,LATTICE_SIZE], which denote the row and column of a site on the lattice. If this site is empty, a CO molecule adsorbs onto the site. Now, on this site:
-    1. Initiate reaction with CO if possible.
-    1. Initiate reaction with CH<sub>x</sub> if possible (0&leq;x&leq;3).
-    1. Initiate desorption on CH<sub>x</sub> if possible (1&leq;x&leq;3).
-1. If the chosen reactant is H<sub>2</sub>, generate two random integers in the range [0,LATTICE_SIZE], which denote the row and column of one of the two sites on the lattice, where this H<sub>2</sub> molecule will adsorb as individual H atoms. Generate another random integer in the range [0,2], which denotes the direction of the second site relative to the first site (right, bottom-left or bottom-right). If both these sites are empty, the H<sub>2</sub> molecule dissociates to two H atoms which individually adsorb to these sites.
-1. Make a list of all the CO sites neighbouring one or both of the just adsorbed H-atoms and shuffle it. Now, on each of these sites:
-    1. Initiate reaction with CO if possible.
-1. Make a list of all the C sites neighbouring one or both of the just adsorbed H-atoms and shuffle it. Now, on each of these sites:
-    1. Initiate reaction with CH<sub>x</sub> if possible (0&leq;x&leq;3).
-    1. Initiate desorption on CH<sub>x</sub> if possible (1&leq;x&leq;3).
-1. Stop the simulation when at least EQUILIBRIUM_VERIFICATION_STEPS iterations have passed and the following condition is true (This condition greatly decreases the program runtime with almost zero loss in accuracy of the results for say EQUILIBRIUM_VERIFICATION_STEPS = 50 * LATTICE_SIZE * LATTICE_SIZE and EQUILIBRIUM_VERIFICATION_THRESHOLD = 0):
+1. If the chosen reactant is CO, generate two random integers in the range [0,LATTICE_SIZE], which denote the row and column of a site on the lattice. If this site is empty, a CO molecule adsorbs onto the site. Process this site (explained below).
+1. If the chosen reactant is H<sub>2</sub>, generate two random integers in the range [0,LATTICE_SIZE], which denote the row and column of one of the two sites on the lattice, where this H<sub>2</sub> molecule will adsorb as individual H atoms. Generate another random integer in the range [0,2], which denotes the direction of the second site relative to the first site (right, bottom-left or bottom-right). If both these sites are empty, the H<sub>2</sub> molecule dissociates to two H atoms which individually adsorb to these sites. Make a list of all the CO sites neighbouring one or both of the just adsorbed H-atoms and shuffle it. Process each of these sites in a random order.
+1. Stop the simulation when MAX_ITERATIONS_PER_SIMULATION trials have been completed or at least EQUILIBRIUM_VERIFICATION_STEPS iterations have passed and the following condition is true (This condition greatly decreases the program runtime with almost no loss in accuracy of the results for good enough constants EQUILIBRIUM_VERIFICATION_STEPS and EQUILIBRIUM_VERIFICATION_THRESHOLD):
 
     ```c++
     // Assuming that the current iteration is iteration i
@@ -31,6 +22,14 @@ g++ -O3 -march=native simulation.cpp -o simulation
     ```
 
 1. Repeat all the above steps for different mole fractions and plot a graph between the desired properties and the mole fractions of CO.
+
+
+## Lattice Operations Queues
+
+Throughout the program, three queues are maintained. The purpose of the queues is listed below:
+1. **First queue:** This queue consists of the sites, which are to be checked for the reaction of CO and H<sub>2</sub>.
+1. **Second queue:** This queue consists of the sites, which are to be checked for the reaction of a CH<sub>x</sub> unit with H<sub>2</sub>.
+1. **Third queue:** This queue consists of the sites, which are to be checked for the adsorption of a possible product.
 
 
 ## Some Important Subroutines
