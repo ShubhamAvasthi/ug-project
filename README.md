@@ -67,12 +67,11 @@ Throughout the program, three queues are maintained. The purpose of the queues i
 1. Iterate over the sites in the list.
 1. The hydrogen atom occupying the chosen site forms a bond with the C atom in consideration and we add this site to the list of sites of H bonded to the C atom in consideration, effectively increasing x by 1.
 1. Continue iterating over the list of H-sites until x becomes equal to 4, i.e. a CH<sub>4</sub> molecule is formed or the list ends.
-1. If a CH<sub>4</sub> molecule has been formed, it will desorb leaving behind 5 empty sites and increasing the hydrocarbon production by 1.
 
-### Initiate desorption on CH<sub>x</sub> if possible (1&leq;x&leq;3)
+### Initiate desorption on CH<sub>x</sub> if possible (0&leq;x&leq;4)
 1. For a given site, if this site is not occupied by a C atom, return.
-1. With this site as root, search a random branched chain.
-1. If a branched chain was found, the branched chain desorps.
+1. With this site as root, search a random possible product chain.
+1. If a product chain was found, the product chain desorps.
 
 ### Search branched chains
 Finds a random product branched chain containing a given root site.
