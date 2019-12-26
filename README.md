@@ -34,14 +34,24 @@ Throughout the program, three queues are maintained. The purpose of the queues i
 
 ## Some Important Subroutines
 
+### Process site
+1. Add the site to the first queue.
+1. Process all queues.
+
+### Process all queues
+1. Initiate reaction with CO if possible for a site in the first queue. If not possible, proceed to the next step else push the site for which it was possible to the next queue and process all queues.
+1. Initiate reaction with CH<sub>x</sub> if possible (0&leq;x&leq;3) for a site in the second queue. If not possible, proceed to the next step else push the site for which it was possible to the next queue and process all queues.
+1. Initiate desorption on CH<sub>x</sub> if possible (1&leq;x&leq;3) for a site in the first queue. If not possible, return else process all queues.
+
 ### Initiate reaction with CO if possible
-1. For a given site, if this site is not occupied by a CO molecule, do nothing.
-1. If this site is occupied by a CO molecule, make a list of its neighbouring sites, which are occupied by a hydrogen atom, irrespective of whether the hydrogen atom is already bonded to another C atom. (**Assumption:** Priority of formation of H<sub>2</sub>O over retaining the pre-existing C-H bonds)
+1. For a given site, if this site is not occupied by a CO molecule, return.
+1. If this site is occupied by a CO molecule, make a list of its neighbouring sites, which are occupied by a hydrogen atom, irrespective of whether the hydrogen atom is already bonded to another C atom. (**Assumption:** Priority of formation of H<sub>2</sub>O over retaining the pre-existing C-H bonds).
 1. If the size of the list is greater than or equal to 2, randomly choose two of the sites from this list.
 1. The two hydrogen atoms occupying the chosen sites react with the CO molecule in consideration and form H<sub>2</sub>O, which desorbs leaving behind two empty sites, which were previously occupied by the H atoms in consideration (possibly also breaking their bond with another C one or more of them was bonded to previously) and a site occupied by a C atom, which was previously occupied by a CO molecule.
+1. For each H that paticipated in the reaction, if it was previously bonded with a C site, add the C site to the first queue (although it should technically be added to the second queue, adding it to the first queue is still correct, we prefer adding to the first queue for a reason which is out of the scope of this document).
 
 ### Initiate reaction with CH<sub>x</sub> if possible (0&leq;x&leq;3)
-1. For a given site, if this site is not occupied by a C atom, do nothing.
+1. For a given site, if this site is not occupied by a C atom, return.
 1. If this site is occupied by a C atom, make a list of its neighbouring sites, which are occupied by a hydrogen atom.
 1. Shuffle the list.
 1. Iterate over the sites in the list.
@@ -50,11 +60,13 @@ Throughout the program, three queues are maintained. The purpose of the queues i
 1. If a CH<sub>4</sub> molecule has been formed, it will desorb leaving behind 5 empty sites and increasing the hydrocarbon production by 1.
 
 ### Initiate desorption on CH<sub>x</sub> if possible (1&leq;x&leq;3)
-1. For a given site, if this site is not occupied by a C atom, do nothing.
-1. If this site is occupied by a C atom, make a list of its neighbouring sites, which are occupied by a C atom, which is bonded to the same number of H atoms as the C atom in consideration.
-1. Randomly choose one of the sites from this list.
-1. The chosen CH<sub>x</sub> molecule reacts with the CH<sub>x</sub> molecule in consideration forming C<sub>2</sub>H<sub>2x</sub>, which immediately desorbs leaving behind 2x+2 empty sites.
-1. Increase the hydrocarbon production by 1.
+1. For a given site, if this site is not occupied by a C atom, return.
+1. With this site as root, search a random branched chain.
+1. If a branched chain was found, the branched chain desorps.
+
+### Search branched chains
+Finds a random product branched chain containing a given root site.
+This is a quite complicated subroutine, so not including its details in the document.
 
 
 ## Assumptions
