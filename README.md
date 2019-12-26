@@ -8,8 +8,7 @@ The presentations of the project I gave in my VI<sup>th</sup> and VII<sup>th</su
 g++ -O3 -march=native simulation.cpp -o simulation
 ```
 
-## TODO
-## The Algorithm (Not Current)
+## The Algorithm (Current)
 1. Start with a hexagonal lattice of size LATTICE_SIZE * LATTICE_SIZE for some constant LATTICE_SIZE.
 1. Start the simulation for a given mole fraction of CO. The sum of the mole fraction of CO and the mole fraction of H<sub>2</sub> is assumed to be equal to 1 throughout the execution of the program.
 1. Generate a random floating point number per iteration of the simulation. If this number is greater than the mole fraction of CO, choose H<sub>2</sub> as the reactant for this iteration, else choose CO.
@@ -23,6 +22,14 @@ g++ -O3 -march=native simulation.cpp -o simulation
     ```
 
 1. Repeat all the above steps for different mole fractions and plot a graph between the desired properties and the mole fractions of CO.
+
+
+## Lattice Operations Queues
+
+Throughout the program, three queues are maintained. The purpose of the queues is listed below:
+1. **First queue:** This queue consists of the sites, which are to be checked for the reaction of CO and H<sub>2</sub>.
+1. **Second queue:** This queue consists of the sites, which are to be checked for the reaction of a CH<sub>x</sub> unit with H<sub>2</sub>.
+1. **Third queue:** This queue consists of the sites, which are to be checked for the adsorption of a possible product.
 
 
 ## Some Important Subroutines
